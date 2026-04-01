@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+venv/
+.DS_Store
+.rag_index.pkl
+tags_output.json
+images/*.jpg
+images/*.png
+images/*.jpeg
+images/*.webp
+images/*.gif
