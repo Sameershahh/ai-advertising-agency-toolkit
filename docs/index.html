@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Advertising Agency Toolkit — Live Demo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #fafaf8;
+    --gray-50: #f5f4f0;
+    --gray-100: #e8e6e0;
+    --gray-300: #b0aca0;
+    --gray-500: #706c62;
+    --gray-700: #3a3832;
+    --accent: #c8a96e;
+    --accent-light: #f0e8d6;
+    --accent-dark: #8a6f3e;
+    --danger: #c0392b;
+    --success: #1e7a4a;
+    --warning: #b8730a;
+    --radius: 6px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--black);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid #222;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .wordmark { font-size: 13px; letter-spacing: 0.15em; color: var(--gray-300); font-family: 'Courier New', monospace; }
+  .wordmark span { color: var(--accent); }
+  .gh-link { font-size: 12px; font-family: 'Courier New', monospace; color: var(--gray-300); text-decoration: none; border: 1px solid #333; padding: 6px 14px; border-radius: var(--radius); transition: all 0.2s; letter-spacing: 0.05em; }
+  .gh-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 80px 40px 60px;
+    max-width: 820px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .hero-eyebrow { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); font-family: 'Courier New', monospace; margin-bottom: 20px; text-transform: uppercase; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); font-weight: normal; line-height: 1.15; color: var(--white); margin-bottom: 20px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { font-size: 16px; color: var(--gray-300); max-width: 560px; margin: 0 auto 40px; }
+  .badge-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .badge { display: inline-block; padding: 4px 12px; border: 1px solid #333; border-radius: 20px; font-size: 11px; font-family: 'Courier New', monospace; color: var(--gray-300); letter-spacing: 0.05em; }
+
+  /* ── Nav tabs ── */
+  .tabs-wrap { border-bottom: 1px solid #1a1a1a; padding: 0 40px; background: #050505; position: sticky; top: 0; z-index: 100; }
+  .tabs { display: flex; gap: 0; overflow-x: auto; max-width: 900px; margin: 0 auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 16px 20px; font-size: 12px; font-family: 'Courier New', monospace; letter-spacing: 0.06em; background: none; border: none; color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s; }
+  .tab-btn:hover { color: var(--gray-300); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Main layout ── */
+  main { max-width: 900px; margin: 0 auto; padding: 40px 40px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-header { margin-bottom: 32px; }
+  .section-header .tag { font-size: 11px; font-family: 'Courier New', monospace; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+  .section-header h2 { font-size: 26px; font-weight: normal; color: var(--white); margin-bottom: 8px; }
+  .section-header p { font-size: 14px; color: var(--gray-300); max-width: 600px; line-height: 1.7; }
+
+  /* ── Card ── */
+  .card { background: #111; border: 1px solid #1e1e1e; border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+  .card-label { font-size: 11px; font-family: 'Courier New', monospace; letter-spacing: 0.1em; color: var(--gray-500); text-transform: uppercase; margin-bottom: 14px; }
+
+  /* ── Form elements ── */
+  textarea, input[type="text"] {
+    width: 100%; padding: 14px 16px; font-size: 14px; font-family: 'Georgia', serif;
+    background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: var(--radius);
+    color: var(--white); resize: vertical; outline: none; line-height: 1.6; transition: border-color 0.2s;
+  }
+  textarea:focus, input[type="text"]:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--gray-500); }
+
+  .run-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 16px; padding: 12px 24px;
+    font-size: 12px; font-family: 'Courier New', monospace; letter-spacing: 0.1em;
+    background: var(--accent); color: var(--black); border: none;
+    border-radius: var(--radius); cursor: pointer; transition: all 0.2s; font-weight: bold;
+  }
+  .run-btn:hover { background: #d4b87a; }
+  .run-btn:disabled { background: #2a2a2a; color: var(--gray-500); cursor: not-allowed; }
+  .run-btn .arrow { font-size: 14px; }
+
+  /* ── Status / spinner ── */
+  .status { display: none; align-items: center; gap: 10px; margin-top: 16px; font-size: 13px; font-family: 'Courier New', monospace; color: var(--gray-300); }
+  .status.show { display: flex; }
+  .spinner { width: 16px; height: 16px; border: 2px solid #333; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Variation cards ── */
+  .var-grid { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
+  .var-card { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: var(--radius-lg); padding: 20px 24px; border-left: 3px solid var(--accent); }
+  .var-num { font-size: 10px; font-family: 'Courier New', monospace; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; }
+  .var-field { display: flex; gap: 12px; margin-bottom: 10px; align-items: baseline; }
+  .var-key { font-size: 11px; font-family: 'Courier New', monospace; color: var(--gray-500); min-width: 70px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.05em; }
+  .var-val { font-size: 14px; color: var(--white); line-height: 1.6; }
+  .var-val.headline { font-size: 16px; font-weight: normal; color: var(--white); }
+  .var-val.tagline { font-style: italic; color: var(--accent); }
+  .cta-pill { display: inline-block; background: var(--accent-dark); color: var(--accent-light); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-family: 'Courier New', monospace; }
+
+  /* ── Analysis result ── */
+  .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+  .analysis-cell { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: var(--radius); padding: 16px; }
+  .analysis-cell .label { font-size: 10px; font-family: 'Courier New', monospace; letter-spacing: 0.12em; color: var(--gray-500); text-transform: uppercase; margin-bottom: 8px; }
+  .analysis-cell .value { font-size: 13px; color: var(--white); line-height: 1.6; }
+  .analysis-cell.full { grid-column: 1 / -1; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-family: 'Courier New', monospace; }
+  .pill-gold { background: rgba(200, 169, 110, 0.12); color: var(--accent); border: 1px solid rgba(200, 169, 110, 0.25); }
+  .pill-red { background: rgba(192, 57, 43, 0.12); color: #e07060; border: 1px solid rgba(192, 57, 43, 0.25); }
+  .pill-green { background: rgba(30, 122, 74, 0.12); color: #4caf7a; border: 1px solid rgba(30, 122, 74, 0.25); }
+  .oneliner { margin-top: 16px; padding: 14px 18px; background: rgba(200, 169, 110, 0.06); border: 1px solid rgba(200, 169, 110, 0.18); border-radius: var(--radius); font-size: 14px; font-style: italic; color: var(--accent); }
+
+  /* ── Tone enforcer ── */
+  .result-raw { background: #0a0a0a; border: 1px solid #222; border-radius: var(--radius); padding: 16px; font-size: 13px; font-family: 'Courier New', monospace; color: #b0b0a0; line-height: 1.8; white-space: pre-wrap; margin-top: 16px; display: none; max-height: 380px; overflow-y: auto; }
+  .result-raw.show { display: block; }
+
+  /* ── Prompt engineering tabs ── */
+  .inner-tabs { display: flex; gap: 0; border-bottom: 1px solid #1e1e1e; margin-bottom: 20px; }
+  .inner-tab { padding: 10px 16px; font-size: 11px; font-family: 'Courier New', monospace; letter-spacing: 0.06em; background: none; border: none; color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .inner-pane { display: none; }
+  .inner-pane.active { display: block; }
+
+  /* ── Before/After ── */
+  .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .ba-card { border: 1px solid #1e1e1e; border-radius: var(--radius); padding: 16px; }
+  .ba-label { font-size: 10px; font-family: 'Courier New', monospace; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .ba-label.bad { color: var(--danger); }
+  .ba-label.good { color: var(--success); }
+  .ba-weak { font-size: 12px; color: var(--gray-500); font-style: italic; margin-bottom: 10px; }
+  .ba-output { font-size: 12px; color: var(--gray-300); background: #0d0d0d; padding: 10px; border-radius: var(--radius); line-height: 1.6; }
+
+  /* ── Code block ── */
+  .code { background: #080808; border: 1px solid #1e1e1e; border-radius: var(--radius); padding: 16px; font-size: 12px; font-family: 'Courier New', monospace; color: #8a9a7a; line-height: 1.8; overflow-x: auto; white-space: pre; max-height: 300px; overflow-y: auto; }
+
+  /* ── Technique badges ── */
+  .tech-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tech-badge { padding: 4px 12px; border: 1px solid rgba(200,169,110,0.3); border-radius: 20px; font-size: 11px; font-family: 'Courier New', monospace; color: var(--accent); background: rgba(200,169,110,0.06); }
+
+  /* ── Safety scores ── */
+  .safety-item { margin-bottom: 20px; }
+  .safety-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .safety-name { font-size: 14px; color: var(--white); }
+  .safety-num { font-size: 20px; font-family: 'Courier New', monospace; font-weight: bold; }
+  .bar-track { height: 4px; background: #1e1e1e; border-radius: 2px; margin-bottom: 8px; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s; }
+  .safety-note { font-size: 12px; color: var(--gray-500); line-height: 1.5; }
+
+  /* ── Architecture layers ── */
+  .arch-layer { border-left: 2px solid #2a2a2a; padding: 12px 16px; margin-bottom: 8px; transition: border-color 0.2s; }
+  .arch-layer:hover { border-left-color: var(--accent); }
+  .arch-layer-title { font-size: 13px; font-family: 'Courier New', monospace; color: var(--accent); margin-bottom: 4px; letter-spacing: 0.05em; }
+  .arch-layer-desc { font-size: 12px; color: var(--gray-500); line-height: 1.6; }
+
+  .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+  .metric { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: var(--radius); padding: 16px; text-align: center; }
+  .metric-val { font-size: 24px; font-family: 'Courier New', monospace; color: var(--accent); }
+  .metric-lbl { font-size: 11px; color: var(--gray-500); margin-top: 4px; letter-spacing: 0.05em; }
+
+  /* ── RAG demo ── */
+  .chat-wrap { display: flex; flex-direction: column; gap: 12px; }
+  .chat-msg { display: flex; gap: 12px; align-items: flex-start; }
+  .chat-role { font-size: 10px; font-family: 'Courier New', monospace; letter-spacing: 0.1em; color: var(--gray-500); min-width: 40px; padding-top: 12px; text-transform: uppercase; }
+  .chat-bubble { font-size: 13px; line-height: 1.7; padding: 12px 16px; border-radius: var(--radius); flex: 1; }
+  .chat-bubble.user { background: #151515; border: 1px solid #222; color: var(--gray-300); }
+  .chat-bubble.bot { background: #0d1510; border: 1px solid #1a2a1a; color: var(--white); }
+  .chat-bubble.refuse { background: #150d0d; border: 1px solid #2a1a1a; color: #e07060; }
+  .chat-meta { font-size: 11px; font-family: 'Courier New', monospace; color: var(--gray-500); margin-top: 6px; }
+
+  /* ── Error ── */
+  .error-msg { color: #e07060; font-size: 13px; font-family: 'Courier New', monospace; margin-top: 14px; padding: 12px; background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.2); border-radius: var(--radius); display: none; }
+  .error-msg.show { display: block; }
+
+  /* ── Footer ── */
+  footer { border-top: 1px solid #111; padding: 32px 40px; text-align: center; }
+  footer p { font-size: 12px; font-family: 'Courier New', monospace; color: var(--gray-500); letter-spacing: 0.05em; }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    header, main, footer { padding-left: 20px; padding-right: 20px; }
+    .hero { padding: 50px 20px 40px; }
+    .tabs-wrap { padding: 0 20px; }
+    .analysis-grid { grid-template-columns: 1fr; }
+    .ba-grid { grid-template-columns: 1fr; }
+    .metrics-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">/<span>ai-advertising</span>-agency-toolkit</div>
+  <a class="gh-link" href="https://github.com/sameershahh/ai-advertising-agency-toolkit" target="_blank">↗ GitHub</a>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">Sameer Shah · sameershahh</div>
+  <h1>AI Advertising Agency<br><em>Toolkit</em></h1>
+  <p>A production-grade suite of AI tools built for advertising agencies — copy generation, brief analysis, image tagging, RAG chatbots, and more.</p>
+  <div class="badge-row">
+    <span class="badge">Claude API</span>
+    <span class="badge">FastAPI</span>
+    <span class="badge">RAG</span>
+    <span class="badge">Vision AI</span>
+    <span class="badge">Docker</span>
+    <span class="badge">Python 3.11+</span>
+  </div>
+</section>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('t11')">1.1 Copy Gen</button>
+    <button class="tab-btn" onclick="switchTab('t12')">1.2 Prompt Eng</button>
+    <button class="tab-btn" onclick="switchTab('t21')">2.1 Brief Analyzer</button>
+    <button class="tab-btn" onclick="switchTab('t22')">2.2 Image Tagger</button>
+    <button class="tab-btn" onclick="switchTab('t23')">2.3 RAG Bot</button>
+    <button class="tab-btn" onclick="switchTab('t3')">Section 3</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ══════════ TASK 1.1 ══════════ -->
+<div id="t11" class="section active">
+  <div class="section-header">
+    <div class="tag">Task 1.1 — LLM Integration</div>
+    <h2>AI Copywriting Generator</h2>
+    <p>Enter a product brief to generate 3 structured advertising copy variations using Claude at temperature 0.85 — aspirational, benefit-driven, and provocative.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">Product brief</div>
+    <textarea id="brief-input" rows="3" placeholder="e.g. New luxury perfume for men, brand name: Noir, target: 30-45 year old professionals">New luxury perfume for men, brand name: Noir, target: 30-45 year old professionals</textarea>
+    <button class="run-btn" id="copy-btn" onclick="generateCopy()">
+      <span>Generate copy</span><span class="arrow">→</span>
+    </button>
+    <div class="status" id="copy-status"><div class="spinner"></div><span>Generating 3 variations via Claude…</span></div>
+    <div class="error-msg" id="copy-error"></div>
+  </div>
+  <div id="copy-out" class="var-grid"></div>
+</div>
+
+<!-- ══════════ TASK 1.2 ══════════ -->
+<div id="t12" class="section">
+  <div class="section-header">
+    <div class="tag">Task 1.2 — Prompt Engineering</div>
+    <h2>Advanced Prompt Engineering</h2>
+    <p>Three weak prompts rewritten with advanced techniques — role assignment, output constraints, few-shot examples, chain-of-thought via schema, and negative constraints.</p>
+  </div>
+
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="switchInner(this,'pe1')">Social media post</button>
+    <button class="inner-tab" onclick="switchInner(this,'pe2')">Creative rewrite</button>
+    <button class="inner-tab" onclick="switchInner(this,'pe3')">Brief summary</button>
+  </div>
+
+  <div id="pe1" class="inner-pane active">
+    <div class="ba-grid">
+      <div class="ba-card">
+        <div class="ba-label bad">❌ Before — weak prompt</div>
+        <div class="ba-weak">"Write a social media post for our new shoe brand."</div>
+        <div class="ba-output">"Introducing our new shoe brand! 👟 We're excited to launch our latest collection of stylish and comfortable footwear. Perfect for any occasion! Shop now! #shoes #fashion #newcollection"</div>
+      </div>
+      <div class="ba-card">
+        <div class="ba-label good">✓ After — engineered output</div>
+        <div class="ba-weak">With role, constraints, tonal example, and negative rules applied:</div>
+        <div class="ba-output">"Clean lines. No logos screaming for attention.
+
+The STRYDE ONE was built for the days when you want your fit to speak quietly — and still be the loudest thing in the room.
+
+On site now. Link in bio.
+
+#STRYDE #StreetStyle #SneakerCulture #CleanKicks"</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Techniques applied</div>
+      <div class="tech-row">
+        <span class="tech-badge">Role assignment</span>
+        <span class="tech-badge">Output constraints</span>
+        <span class="tech-badge">Few-shot tonal reference</span>
+        <span class="tech-badge">Context injection</span>
+        <span class="tech-badge">Negative constraints</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="pe2" class="inner-pane">
+    <div class="card">
+      <div class="card-label">❌ Weak prompt</div>
+      <div style="font-size:13px;color:var(--gray-500);font-style:italic;margin-bottom:16px;">"Make our ad copy more creative."</div>
+      <div class="card-label" style="margin-top:16px;">✓ Rewritten prompt (key structure)</div>
+      <div class="code">You are a senior creative director. Rewrite the copy below
+to be more creative and emotionally engaging.
+
+BRAND CONTEXT:
+- Brand: [Name] | Industry: [Industry]
+- Audience: [Age range, psychographic descriptor]
+- Tone: [e.g. "witty and irreverent"]
+- Channels: [e.g. Instagram feed, Google Display]
+
+REWRITE RULES:
+1. Lead with unexpected angle or emotional hook
+2. No generic adjectives (great, amazing, innovative)
+3. Preserve the original CTA — make it feel inevitable
+4. Stay within 10% of the original word count
+5. Do NOT open with a rhetorical question
+
+Return rewritten copy only. No commentary.</div>
+      <div class="tech-row">
+        <span class="tech-badge">Senior role + specialisation</span>
+        <span class="tech-badge">Constraint-based creativity</span>
+        <span class="tech-badge">Context injection</span>
+        <span class="tech-badge">Word count anchor</span>
+        <span class="tech-badge">Output purity</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="pe3" class="inner-pane">
+    <div class="card">
+      <div class="card-label">❌ Weak prompt</div>
+      <div style="font-size:13px;color:var(--gray-500);font-style:italic;margin-bottom:16px;">"Summarize this campaign brief."</div>
+      <div class="card-label" style="margin-top:16px;">✓ Rewritten — structured JSON schema prompt</div>
+      <div class="code">You are a strategic account planner. Analyse the brief
+and return ONLY this JSON (no markdown fences, no preamble):
+
+{
+  "campaign_objective": "single measurable goal",
+  "target_audience": {
+    "primary": "demographic + psychographic",
+    "secondary": "or null"
+  },
+  "key_messages": ["message 1", "message 2", "message 3"],
+  "tone": "2-4 descriptive adjectives",
+  "channels": ["channel 1", "channel 2"],
+  "risks": ["specific risk 1", "specific risk 2"],
+  "one_line_brief": "10 words or fewer"
+}
+
+Rules: derive ONLY from the brief. Set null if not found.</div>
+      <div class="tech-row">
+        <span class="tech-badge">Chain-of-thought via schema</span>
+        <span class="tech-badge">Role assignment</span>
+        <span class="tech-badge">Grounding constraint</span>
+        <span class="tech-badge">Risk flags field</span>
+        <span class="tech-badge">Machine-parseable output</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TASK 2.1 ══════════ -->
+<div id="t21" class="section">
+  <div class="section-header">
+    <div class="tag">Task 2.1 — FastAPI System</div>
+    <h2>Campaign Brief Analyzer</h2>
+    <p>Replicates the <code>POST /analyze-brief</code> FastAPI endpoint. Paste any campaign brief to receive structured analysis: objective, audience, messages, tone, channels, and risk flags.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">Campaign brief input</div>
+    <textarea id="brief-text" rows="7" placeholder="Paste your campaign brief here…">We are launching Verde Beauty — a premium USDA Certified Organic skincare line targeting women aged 28-44, household income $80k+. These consumers are eco-conscious and deeply skeptical of greenwashing. The campaign goal is to drive a 25% uplift in repeat purchase rate within 6 months. Brand tone should be confident, transparent, and quietly authoritative — never preachy. Primary channels: Instagram, Pinterest, Google Display. Key messages: certified organic (not just "natural"), ingredients traceable to farm of origin, and performance without compromise.</textarea>
+    <button class="run-btn" id="analyze-btn" onclick="analyzeBrief()">
+      <span>Analyze brief</span><span class="arrow">→</span>
+    </button>
+    <div class="status" id="analyze-status"><div class="spinner"></div><span>Calling /analyze-brief via Claude…</span></div>
+    <div class="error-msg" id="analyze-error"></div>
+  </div>
+  <div id="analyze-out"></div>
+</div>
+
+<!-- ══════════ TASK 2.2 ══════════ -->
+<div id="t22" class="section">
+  <div class="section-header">
+    <div class="tag">Task 2.2 — Vision AI</div>
+    <h2>Image Auto-Tagger</h2>
+    <p>The <code>image_tagger.py</code> script batch-processes advertising images using Claude Vision, generating alt text, content tags, brand safety scores (1–10), and campaign use cases.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">Sample output — tags_output.json</div>
+    <div id="img-samples"></div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-label">Usage</div>
+    <div class="code">pip install anthropic
+export ANTHROPIC_API_KEY="your-key"
+
+python image_tagger.py --folder ./images --output ./tags_output.json
+
+# Output format:
+{
+  "images": [
+    {
+      "filename": "hero_product.jpg",
+      "alt_text": "Dark glass perfume bottle on marble surface with atmospheric smoke",
+      "tags": ["luxury", "product photography", "dark aesthetic", "minimalist"],
+      "brand_safety_score": 9,
+      "use_cases": ["Instagram feed", "Display network", "Magazine digital"]
+    }
+  ],
+  "total": 5
+}</div>
+  </div>
+</div>
+
+<!-- ══════════ TASK 2.3 ══════════ -->
+<div id="t23" class="section">
+  <div class="section-header">
+    <div class="tag">Task 2.3 — RAG System</div>
+    <h2>Campaign Knowledge Bot</h2>
+    <p>A CLI chatbot that answers questions strictly from uploaded agency documents. Refuses out-of-scope questions. Returns answer + source document + verbatim quote.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">Architecture</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:0;">
+      <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:var(--radius);padding:14px;text-align:center;">
+        <div style="font-size:11px;font-family:'Courier New',monospace;color:var(--accent);margin-bottom:6px;">01 / INGEST</div>
+        <div style="font-size:12px;color:var(--gray-500);">PDF/TXT → 800-char chunks, 150-char overlap</div>
+      </div>
+      <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:var(--radius);padding:14px;text-align:center;">
+        <div style="font-size:11px;font-family:'Courier New',monospace;color:var(--accent);margin-bottom:6px;">02 / INDEX</div>
+        <div style="font-size:12px;color:var(--gray-500);">Voyage-3 embeddings → NumPy cosine similarity</div>
+      </div>
+      <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:var(--radius);padding:14px;text-align:center;">
+        <div style="font-size:11px;font-family:'Courier New',monospace;color:var(--accent);margin-bottom:6px;">03 / GENERATE</div>
+        <div style="font-size:12px;color:var(--gray-500);">Top-5 chunks → Claude (temp 0.1) → grounded answer</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-label">Sample conversation</div>
+    <div class="chat-wrap">
+      <div class="chat-msg">
+        <div class="chat-role">You</div>
+        <div class="chat-bubble user">What is the campaign objective for Verde Beauty?</div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-role">Bot</div>
+        <div class="chat-bubble bot">
+          <strong>Answer:</strong> The campaign objective is to reestablish Verde as the authentic authority in organic skincare and drive a 25% uplift in repeat purchase rate among existing customers within 6 months of launch.<br><br>
+          <div class="chat-meta">Source: sample_case_study.txt &nbsp;·&nbsp; Quote: "drive a 25% uplift in repeat purchase rate among existing customers within 6 months"</div>
+        </div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-role">You</div>
+        <div class="chat-bubble user">What was the campaign budget in euros?</div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-role">Bot</div>
+        <div class="chat-bubble refuse">I cannot answer this question from the provided documents.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-label">Run locally</div>
+    <div class="code">pip install anthropic numpy pymupdf
+export ANTHROPIC_API_KEY="your-key"
+
+# Place .txt or .pdf files in ./docs
+python rag_bot.py --docs ./docs
+
+# Force re-index
+python rag_bot.py --docs ./docs --reindex</div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 3 ══════════ -->
+<div id="t3" class="section">
+  <div class="section-header">
+    <div class="tag">Section 3 — Speed &amp; Practical Tasks</div>
+    <h2>All 5 Tasks</h2>
+    <p>Q1 retry logic · Q2 LangChain debug · Q3 tone enforcer (live) · Q4 brand safety eval · Q5 system architecture</p>
+  </div>
+
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="switchInner(this,'q1')">Q1 Retry</button>
+    <button class="inner-tab" onclick="switchInner(this,'q2')">Q2 Debug</button>
+    <button class="inner-tab" onclick="switchInner(this,'q3')">Q3 Tone Enforcer</button>
+    <button class="inner-tab" onclick="switchInner(this,'q4')">Q4 Safety Eval</button>
+    <button class="inner-tab" onclick="switchInner(this,'q5')">Q5 Architecture</button>
+  </div>
+
+  <div id="q1" class="inner-pane active">
+    <div class="card">
+      <div class="card-label">Anthropic API with 3-retry exponential back-off</div>
+      <div class="code">def call_anthropic_with_retry(prompt, system="You are helpful.",
+                                model="claude-opus-4-5", max_tokens=1024,
+                                max_retries=3):
+    client = anthropic.Anthropic()
+    base_delay = 2.0  # seconds — doubles each attempt
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            message = client.messages.create(
+                model=model, max_tokens=max_tokens,
+                system=system,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return message.content[0].text
+
+        except anthropic.RateLimitError:
+            if attempt == max_retries:
+                raise RuntimeError(f"Rate limit after {max_retries} retries.")
+            delay = base_delay * (2 ** (attempt - 1))   # 2s → 4s → 8s
+            time.sleep(delay)
+
+        except anthropic.APIStatusError as exc:
+            if exc.status_code >= 500 and attempt < max_retries:
+                time.sleep(base_delay * (2 ** (attempt - 1)))
+            else:
+                raise  # Non-retryable — surface immediately
+
+        except anthropic.APIConnectionError:
+            if attempt == max_retries:
+                raise RuntimeError("Connection failed after all retries.")
+            time.sleep(base_delay * (2 ** (attempt - 1)))</div>
+      <div class="tech-row">
+        <span class="tech-badge">RateLimitError (429)</span>
+        <span class="tech-badge">APIStatusError (5xx)</span>
+        <span class="tech-badge">APIConnectionError</span>
+        <span class="tech-badge">Exponential back-off</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="q2" class="inner-pane">
+    <div class="card">
+      <div class="card-label">3 bugs found and fixed in LangChain RAG pipeline</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+        <div style="border-left:3px solid var(--danger);padding:12px 16px;background:#100a0a;border-radius:0 var(--radius) var(--radius) 0;">
+          <div style="font-size:11px;font-family:'Courier New',monospace;color:var(--danger);margin-bottom:6px;letter-spacing:0.08em;">BUG 1 — Wrong Chroma input type</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px;font-family:'Courier New',monospace;">Chroma.from_documents(docs, embeddings) — docs must be Document objects, not raw strings → AttributeError at embedding time</div>
+          <div style="font-size:12px;color:#4caf7a;font-family:'Courier New',monospace;">FIX: lc_docs = [Document(page_content=d) for d in docs]</div>
+        </div>
+        <div style="border-left:3px solid var(--danger);padding:12px 16px;background:#100a0a;border-radius:0 var(--radius) var(--radius) 0;">
+          <div style="font-size:11px;font-family:'Courier New',monospace;color:var(--danger);margin-bottom:6px;letter-spacing:0.08em;">BUG 2 — Missing chain_type argument</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px;font-family:'Courier New',monospace;">RetrievalQA.from_chain_type(llm, retriever=...) missing required chain_type → TypeError on construction</div>
+          <div style="font-size:12px;color:#4caf7a;font-family:'Courier New',monospace;">FIX: add chain_type="stuff" as second positional argument</div>
+        </div>
+        <div style="border-left:3px solid var(--danger);padding:12px 16px;background:#100a0a;border-radius:0 var(--radius) var(--radius) 0;">
+          <div style="font-size:11px;font-family:'Courier New',monospace;color:var(--danger);margin-bottom:6px;letter-spacing:0.08em;">BUG 3 — Deprecated direct callable interface</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px;font-family:'Courier New',monospace;">chain(question) — removed in LangChain ≥0.1.x, direct string call raises TypeError</div>
+          <div style="font-size:12px;color:#4caf7a;font-family:'Courier New',monospace;">FIX: chain.invoke({"query": question})</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="q3" class="inner-pane">
+    <div class="card">
+      <div class="card-label">Verde Beauty brand tone enforcer — live test</div>
+      <textarea id="tone-input" rows="3" placeholder="Enter off-brand copy to rewrite…">OMG you NEED to try this — it literally TRANSFORMS your skin overnight!! Our revolutionary formula is the BEST on the market. Ditch the toxic chemicals and experience the magic!!</textarea>
+      <button class="run-btn" id="tone-btn" onclick="enforceTone()">
+        <span>Enforce brand tone</span><span class="arrow">→</span>
+      </button>
+      <div class="status" id="tone-status"><div class="spinner"></div><span>Rewriting to Verde brand guidelines…</span></div>
+      <div class="error-msg" id="tone-error"></div>
+      <div id="tone-out" class="result-raw"></div>
+    </div>
+  </div>
+
+  <div id="q4" class="inner-pane">
+    <div class="card">
+      <div class="card-label">Brand safety evaluation — 3 AI image generation outputs</div>
+      <div style="margin-top:8px;">
+        <div class="safety-item">
+          <div class="safety-header">
+            <span class="safety-name">Luxury perfume bottle with smoke</span>
+            <span class="safety-num" style="color:#c8a96e;">9/10</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:90%;background:#c8a96e;"></div></div>
+          <div class="safety-note">Smoke is purely atmospheric — no tobacco association. Safe for display networks, social feed, and magazine digital. Restrict in conservative MENA markets only. No identifiable people or sensitive imagery.</div>
+        </div>
+        <div class="safety-item">
+          <div class="safety-header">
+            <span class="safety-name">Rooftop party with cocktails</span>
+            <span class="safety-num" style="color:#b8730a;">6/10</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:60%;background:#b8730a;"></div></div>
+          <div class="safety-note">Alcohol clearly visible and central. Cannot run on Google family-safe tier, App Store placements, or non-age-gated programmatic. Approved for: premium lifestyle publications, age-verified social. Diverse casting is brand-positive.</div>
+        </div>
+        <div class="safety-item">
+          <div class="safety-header">
+            <span class="safety-name">Before/after skin transformation split</span>
+            <span class="safety-num" style="color:#c0392b;">3/10</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:30%;background:#c0392b;"></div></div>
+          <div class="safety-note">FDA violation — before/after format constitutes an implied efficacy claim regardless of caption. Cannot run on any regulated platform without legal review. Requires full creative replacement, not caption editing. Violates Verde mandatory guidelines.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="q5" class="inner-pane">
+    <div class="card">
+      <div class="card-label">AI ad personalization engine — 8-layer system architecture</div>
+      <div style="margin-top:8px;">
+        <div class="arch-layer">
+          <div class="arch-layer-title">01 / Data Ingestion</div>
+          <div class="arch-layer-desc">Kafka clickstream collector · CRM sync (purchase history, LTV) · Real-time context API (device, geo, time) · Product catalog feed</div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-title">02 / Feature Store</div>
+          <div class="arch-layer-desc">Redis online store (&lt;10ms latency) · BigQuery offline store · Apache Flink streaming aggregations · RFM scores, category affinity, price sensitivity</div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-title">03 / AI / ML Layer</div>
+          <div class="arch-layer-desc">Two-tower user embeddings (weekly retrain) · Item2vec product graph · LightGBM CTR ranker · Claude API copy personalisation · CLIP visual matching</div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-title">04 / Personalization Orchestrator</div>
+          <div class="arch-layer-desc">Feature retrieval &lt;5ms · CTR rank top-50 candidates · Async LLM copy for top-3 (&lt;200ms P95) · Assemble + return ad payload as JSON</div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-title">05 / Ad Server Integration</div>
+          <div class="arch-layer-desc">OpenRTB 2.6 bid response · Google DV360, The Trade Desk, Meta Advantage+ · Creative preview API for QA/brand safety pre-check</div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-title">06 / Brand Safety &amp; Compliance</div>
+          <div class="arch-layer-desc">Claude Vision real-time scoring · LLM copy compliance checker · Hard-block rules engine (forbidden categories, geo) · 90-day audit log</div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-title">07 / Feedback &amp; Learning Loop</div>
+          <div class="arch-layer-desc">Impression/click/conversion → Kafka · Thompson Sampling multi-armed bandit · Online updates (shadow mode first) · Weekly Vertex AI retraining</div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-title">08 / Infrastructure</div>
+          <div class="arch-layer-desc">GKE Kubernetes (auto-scaled) · Cloud Armor DDoS protection · 99.95% availability target · &lt;250ms P95 end-to-end SLA</div>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric"><div class="metric-val">50k</div><div class="metric-lbl">bid req / sec</div></div>
+        <div class="metric"><div class="metric-val">&lt;250ms</div><div class="metric-lbl">P95 latency SLA</div></div>
+        <div class="metric"><div class="metric-val">99.95%</div><div class="metric-lbl">availability target</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <p>
+    Built by <a href="https://github.com/sameershahh">@sameershahh</a> ·
+    <a href="https://github.com/sameershahh/ai-advertising-agency-toolkit">GitHub Repository</a> ·
+    Powered by Anthropic Claude
+  </p>
+</footer>
+
+<script>
+const TOKEN = ""; // Claude API calls handled client-side via Anthropic API
+
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function switchInner(btn, id) {
+  const wrap = btn.closest('div').parentElement;
+  btn.closest('.inner-tabs').querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  wrap.querySelectorAll('.inner-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+async function callClaude(system, userMsg) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system,
+      messages: [{ role: 'user', content: userMsg }]
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text;
+}
+
+async function generateCopy() {
+  const brief = document.getElementById('brief-input').value.trim();
+  if (!brief) return;
+  const btn = document.getElementById('copy-btn');
+  const status = document.getElementById('copy-status');
+  const errEl = document.getElementById('copy-error');
+  btn.disabled = true; status.classList.add('show'); errEl.classList.remove('show');
+  document.getElementById('copy-out').innerHTML = '';
+
+  const system = `You are an award-winning advertising copywriter. Generate EXACTLY 3 distinct ad copy variations. Return ONLY valid JSON, no markdown, no preamble:
+{"variation_1":{"headline":"...","tagline":"...","body":"...","cta":"..."},"variation_2":{...},"variation_3":{...}}
+Variation 1: aspirational/emotional tone. Variation 2: benefit-driven/rational. Variation 3: bold/provocative.`;
+
+  try {
+    const raw = await callClaude(system, `BRIEF: ${brief}\n\nGenerate 3 variations as JSON only.`);
+    let data;
+    try { data = JSON.parse(raw); } catch { data = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+    const tones = ['Aspirational / Emotional', 'Benefit-Driven / Rational', 'Bold / Provocative'];
+    const colors = ['#c8a96e', '#7a9a6e', '#9e7a6e'];
+    let html = '';
+    ['variation_1','variation_2','variation_3'].forEach((k, i) => {
+      const v = data[k]; if (!v) return;
+      html += `<div class="var-card" style="border-left-color:${colors[i]}">
+        <div class="var-num">Variation ${i+1} &mdash; ${tones[i]}</div>
+        <div class="var-field"><span class="var-key">Headline</span><span class="var-val headline">${v.headline}</span></div>
+        <div class="var-field"><span class="var-key">Tagline</span><span class="var-val tagline">${v.tagline}</span></div>
+        <div class="var-field"><span class="var-key">Body</span><span class="var-val">${v.body}</span></div>
+        <div class="var-field"><span class="var-key">CTA</span><span class="var-val"><span class="cta-pill">${v.cta}</span></span></div>
+      </div>`;
+    });
+    document.getElementById('copy-out').innerHTML = html;
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message; errEl.classList.add('show');
+  }
+  btn.disabled = false; status.classList.remove('show');
+}
+
+async function analyzeBrief() {
+  const brief = document.getElementById('brief-text').value.trim();
+  if (!brief) return;
+  const btn = document.getElementById('analyze-btn');
+  const status = document.getElementById('analyze-status');
+  const errEl = document.getElementById('analyze-error');
+  btn.disabled = true; status.classList.add('show'); errEl.classList.remove('show');
+  document.getElementById('analyze-out').innerHTML = '';
+
+  const system = `You are a strategic account planner. Analyse the brief and return ONLY valid JSON (no markdown):
+{"campaign_objective":"...","target_audience":{"primary":"...","secondary":null},"key_messages":["..."],"tone":"...","channels":["..."],"risks":["..."],"one_line_brief":"..."}
+Derive ONLY from the brief. Use null if information not present.`;
+
+  try {
+    const raw = await callClaude(system, `CAMPAIGN BRIEF:\n\n${brief}`);
+    let d;
+    try { d = JSON.parse(raw); } catch { d = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+
+    const pills = (arr, cls) => (arr||[]).map(x => `<span class="pill ${cls}">${x}</span>`).join('');
+    document.getElementById('analyze-out').innerHTML = `
+      <div class="analysis-grid">
+        <div class="analysis-cell full"><div class="label">Campaign objective</div><div class="value">${d.campaign_objective||'N/A'}</div></div>
+        <div class="analysis-cell"><div class="label">Primary audience</div><div class="value">${d.target_audience?.primary||'N/A'}</div></div>
+        <div class="analysis-cell"><div class="label">Tone of voice</div><div class="value">${d.tone||'N/A'}</div></div>
+        <div class="analysis-cell"><div class="label">Key messages</div><div class="pill-row">${pills(d.key_messages,'pill-gold')}</div></div>
+        <div class="analysis-cell"><div class="label">Recommended channels</div><div class="pill-row">${pills(d.channels,'pill-green')}</div></div>
+        <div class="analysis-cell full"><div class="label">Risk flags</div><div class="pill-row">${pills(d.risks,'pill-red')}</div></div>
+      </div>
+      <div class="oneliner">&ldquo;${d.one_line_brief||''}&rdquo;</div>`;
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message; errEl.classList.add('show');
+  }
+  btn.disabled = false; status.classList.remove('show');
+}
+
+async function enforceTone() {
+  const copy = document.getElementById('tone-input').value.trim();
+  if (!copy) return;
+  const btn = document.getElementById('tone-btn');
+  const status = document.getElementById('tone-status');
+  const errEl = document.getElementById('tone-error');
+  const out = document.getElementById('tone-out');
+  btn.disabled = true; status.classList.add('show'); errEl.classList.remove('show'); out.classList.remove('show');
+
+  const system = `You are a brand tone enforcement specialist for Verde Beauty — premium organic skincare.
+
+FORBIDDEN: "best", "amazing", "revolutionary", "toxic chemicals", "transforms overnight", "miracle", "OMG", "NEED", "literally", ALL CAPS hype words, fear-based language.
+
+VERDE VOICE: Confident, transparent, quietly authoritative. Evidence-based. Warm but not gushing. Never preachy.
+
+WRONG: "Our revolutionary formula TRANSFORMS skin overnight!"
+RIGHT: "Formulated with USDA Certified Organic botanicals. In clinical testing, 87% of users reported visibly smoother skin in 4 weeks."
+
+Format response as:
+VIOLATIONS FOUND:
+- [each violation with brief explanation]
+
+REWRITTEN COPY:
+[corrected on-brand version]
+
+CHANGES MADE:
+- [brief explanation of each change]`;
+
+  try {
+    const result = await callClaude(system, `Rewrite this off-brand copy:\n\n${copy}`);
+    out.textContent = result;
+    out.classList.add('show');
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message; errEl.classList.add('show');
+  }
+  btn.disabled = false; status.classList.remove('show');
+}
+
+// Image tagger sample data
+const imgData = [
+  { filename:'perfume_hero.jpg', alt_text:'Dark glass perfume bottle on black marble with atmospheric smoke wisps, dramatic studio lighting', tags:['luxury','product photography','dark aesthetic','minimalist','premium','masculine'], score:9, uses:['Instagram feed','Display network premium','Magazine digital','OOH digital'] },
+  { filename:'rooftop_party.jpg', alt_text:'Diverse young professionals laughing on rooftop terrace at golden hour, holding cocktail glasses', tags:['lifestyle','social','celebration','diverse','cocktails','golden hour'], score:6, uses:['Age-verified social','Premium lifestyle publications'] },
+  { filename:'skincare_product.jpg', alt_text:'Green glass dropper and cream jar surrounded by botanicals on white linen', tags:['organic','clean beauty','botanical','natural','skincare','DTC'], score:10, uses:['Instagram feed','Google Display','Pinterest','Email campaigns','Website hero'] },
+  { filename:'athlete_run.jpg', alt_text:'Athlete running through urban street at dawn in motion, white sneakers, blurred city background', tags:['sport','motion','urban','energy','aspirational','active lifestyle'], score:9, uses:['Social feed','CTV pre-roll','Display network'] },
+  { filename:'family_home.jpg', alt_text:'Young family laughing in bright modern kitchen during breakfast, warm natural light', tags:['family','home','warmth','authentic','morning','domestic'], score:10, uses:['Family-safe display','YouTube pre-roll','Pinterest','Facebook'] }
+];
+
+const scoreColor = s => s >= 8 ? '#c8a96e' : s >= 5 ? '#b8730a' : '#c0392b';
+document.getElementById('img-samples').innerHTML = imgData.map(img => `
+  <div style="border:1px solid #1e1e1e;border-radius:var(--radius);padding:14px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:13px;font-family:'Courier New',monospace;color:var(--white);">${img.filename}</span>
+      <span style="font-size:16px;font-family:'Courier New',monospace;font-weight:bold;color:${scoreColor(img.score)};">${img.score}/10</span>
+    </div>
+    <div style="font-size:12px;color:var(--gray-500);margin-bottom:10px;line-height:1.5;">${img.alt_text}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${img.tags.map(t=>`<span class="pill pill-gold">${t}</span>`).join('')}</div>
+    <div style="font-size:11px;font-family:'Courier New',monospace;color:var(--gray-500);">Use cases: ${img.uses.join(' · ')}</div>
+  </div>`).join('');
+</script>
+</body>
+</html>
