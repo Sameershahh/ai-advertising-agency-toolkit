@@ -1,0 +1,3 @@
+anthropic>=0.25.0
+numpy>=1.26.0
+pymupdf>=1.24.0
